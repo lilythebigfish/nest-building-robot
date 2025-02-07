@@ -104,18 +104,23 @@ class RobotGrasp(object):
         # self.pose_averager = Averager(4, 3)
         self.pose_averager = MinPos(4, 3)
         self.is_ready = False
+        self.alive = True
         self.pos_t = threading.Thread(target=self.update_pos_thread, daemon=True)
         self.pos_t.start()
         self.thread = threading.Thread(target=self.run, daemon=True)
         self.thread.start()
     
+    def is_alive(self):
+        return self.alive
+    
     def run(self):
-        while self.arm.connected:
+        while self.arm.connected and self.alive:
             cmd = self.ggcnn_cmd_que.get()
             self.grasp(cmd)
 
     def update_pos_thread(self):
         self.arm.motion_enable(True)
+        self.arm.clean_error()
         self.arm.set_mode(0)
         self.arm.set_state(0)
         time.sleep(0.5)
@@ -135,10 +140,16 @@ class RobotGrasp(object):
         self.arm.register_report_location_callback(self.robot_position_callback, report_joints=False)
         self.is_ready = True
 
-        while self.arm.connected:
+        while self.arm.connected and self.arm.error_code == 0:
             _, pos = self.arm.get_position()
             self.CURR_POS = [pos[0], pos[1], pos[2], pos[3], pos[4], pos[5]]
             time.sleep(0.01)
+        self.alive = False
+        if self.arm.error_code != 0:
+            print('ERROR_CODE: {}'.format(self.arm.error_code))
+            print('*************** PROGRAM OVER *******************')
+    
+        self.arm.disconnect()
     
     def robot_position_callback(self, msg):
         if not self.is_ready:
@@ -209,9 +220,7 @@ class RobotGrasp(object):
         return eef_pos_m
 
     def grasp(self, data):
-        if not self.SERVO:
-            return
-        if not self.is_ready:
+        if not self.alive or not self.is_ready or not self.SERVO:
             return
 
         d = list(data)

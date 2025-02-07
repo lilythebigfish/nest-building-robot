@@ -50,7 +50,7 @@ def main():
     color_image, depth_image = camera.get_images()
     color_shape = color_image.shape
 
-    while True:
+    while grasp.is_alive():
         color_image, depth_image = camera.get_images()
         cv2.imshow(WIN_NAME, color_image) # 显示彩色图像
         if GGCNN_IN_THREAD:
