@@ -21,7 +21,7 @@ This project requires the following hardware:
 
 ## Supported Python Versions
 
-Python version 3.11 is recommended.
+Supported Python versions: 3.8-3.11 (Recommended: 3.11).
 
 ## Installation
 
