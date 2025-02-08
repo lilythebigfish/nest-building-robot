@@ -93,7 +93,7 @@ class RobotGrasp(object):
     SERVO = True
     GRASP_STATUS = 0
 
-    def __init__(self, robot_ip, ggcnn_cmd_que, euler_eef_to_color_opt, euler_color_to_depth_opt, grasping_range, detect_xyz, gripper_z_mm):
+    def __init__(self, robot_ip, ggcnn_cmd_que, euler_eef_to_color_opt, euler_color_to_depth_opt, grasping_range, detect_xyz, gripper_z_mm, release_xyz):
         self.arm = XArmAPI(robot_ip, report_type='real')
         self.ggcnn_cmd_que = ggcnn_cmd_que
         self.euler_eef_to_color_opt = euler_eef_to_color_opt
@@ -101,6 +101,7 @@ class RobotGrasp(object):
         self.grasping_range = grasping_range
         self.detect_xyz = detect_xyz
         self.gripper_z_mm = gripper_z_mm
+        self.release_xyz = release_xyz
         # self.pose_averager = Averager(4, 3)
         self.pose_averager = MinPos(4, 3)
         self.is_ready = False
@@ -142,6 +143,7 @@ class RobotGrasp(object):
 
         while self.arm.connected and self.arm.error_code == 0:
             _, pos = self.arm.get_position()
+            self.arm.get_err_warn_code()
             self.CURR_POS = [pos[0], pos[1], pos[2], pos[3], pos[4], pos[5]]
             time.sleep(0.01)
         self.alive = False
@@ -152,7 +154,7 @@ class RobotGrasp(object):
         self.arm.disconnect()
     
     def robot_position_callback(self, msg):
-        if not self.is_ready:
+        if not self.is_ready or not self.alive:
             return
         x = self.CURR_POS[0]
         y = self.CURR_POS[1]
@@ -194,8 +196,8 @@ class RobotGrasp(object):
             self.arm.set_gripper_position(0, wait=True)
             time.sleep(0.5)
             self.arm.set_position(z=self.detect_xyz[2] + 100, speed=200, wait=True)
-            self.arm.set_position(x=200, y=320, roll=180, pitch=0, yaw=0, speed=200, wait=True)
-            self.arm.set_position(z=270, speed=100, wait=True)
+            self.arm.set_position(x=self.release_xyz[0], y=self.release_xyz[1], roll=180, pitch=0, yaw=0, speed=200, wait=True)
+            self.arm.set_position(z=self.release_xyz[2], speed=100, wait=True)
             # time.sleep(3)
             # input('Press Enter to Complete')
 
