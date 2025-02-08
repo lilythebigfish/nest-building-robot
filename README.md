@@ -4,6 +4,10 @@
 
 `ufactory_vision` is a vision-based grasping demo based on UFACTORY xArm 6 and Intel Realsense D435 camera. Users can quickly implement vision-based object detection and grasping with this project.
 
+[![Watch the video](https://img.youtube.com/vi/ijnuqsNcfUY/0.jpg)](https://www.youtube.com/watch?v=ijnuqsNcfUY)
+
+
+
 ## Hardware Requirements
 
 This project requires the following hardware:
