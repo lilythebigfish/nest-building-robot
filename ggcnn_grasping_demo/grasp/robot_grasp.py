@@ -194,7 +194,7 @@ class RobotGrasp(object):
             self.arm.set_gripper_position(0, wait=True)
             time.sleep(0.5)
             self.arm.set_position(z=self.detect_xyz[2] + 100, speed=200, wait=True)
-            self.arm.set_position(x=200, y=320, roll=180, pitch=0, yaw=0, speed=200, wait=True)
+            self.arm.set_position(x=400, y=400, roll=180, pitch=0, yaw=0, speed=200, wait=True)
             self.arm.set_position(z=270, speed=100, wait=True)
             # time.sleep(3)
             # input('Press Enter to Complete')
