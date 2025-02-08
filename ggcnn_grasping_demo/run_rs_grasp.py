@@ -29,6 +29,9 @@ GRIPPER_Z_MM = 150 # mm
 # release grasping pos
 RELEASE_XYZ = [400, 400, 270]
 
+# min z for grasping
+GRASPING_MIN_Z = 175
+
 def main():
     if len(sys.argv) < 2:
         print('Usage: {} {{robot_ip}}'.format(sys.argv[0]))
@@ -48,7 +51,7 @@ def main():
     cx = depth_intrin.ppx
     cy = depth_intrin.ppy
     time.sleep(3)
-    grasp = RobotGrasp(robot_ip, ggcnn_cmd_que, EULER_EEF_TO_COLOR_OPT, EULER_COLOR_TO_DEPTH_OPT, GRASPING_RANGE, DETECT_XYZ, GRIPPER_Z_MM, RELEASE_XYZ)
+    grasp = RobotGrasp(robot_ip, ggcnn_cmd_que, EULER_EEF_TO_COLOR_OPT, EULER_COLOR_TO_DEPTH_OPT, GRASPING_RANGE, DETECT_XYZ, GRIPPER_Z_MM, RELEASE_XYZ, GRASPING_MIN_Z)
 
     color_image, depth_image = camera.get_images()
     color_shape = color_image.shape
