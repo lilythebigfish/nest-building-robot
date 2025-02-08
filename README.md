@@ -13,7 +13,7 @@ This project requires the following hardware:
 - **Camera**: [Intel RealSense D435](https://www.intelrealsense.com/depth-camera-d435/)
 - **Camera Mount**: Provided by UFACTORY (available for purchase or 3D printing)
   - Purchase Link: [UFACTORY Camera Stand](https://www.ufactory.cc/product-page/ufactory-xarm-camera-stand/)
-  - 3D File Download: [Download Link](#) (Replace with actual link)
+  - 3D File Download: [Camera_Stand_1300.STEP](ufactory_vision/resources/camera_stand_3d/Camera_Stand_1300.STEP) 
 
 ## Supported Python Versions
 
