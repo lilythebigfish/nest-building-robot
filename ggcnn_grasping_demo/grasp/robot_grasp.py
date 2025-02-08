@@ -93,7 +93,7 @@ class RobotGrasp(object):
     SERVO = True
     GRASP_STATUS = 0
 
-    def __init__(self, robot_ip, ggcnn_cmd_que, euler_eef_to_color_opt, euler_color_to_depth_opt, grasping_range, detect_xyz, gripper_z_mm, release_xyz):
+    def __init__(self, robot_ip, ggcnn_cmd_que, euler_eef_to_color_opt, euler_color_to_depth_opt, grasping_range, detect_xyz, gripper_z_mm, release_xyz, grasping_min_z):
         self.arm = XArmAPI(robot_ip, report_type='real')
         self.ggcnn_cmd_que = ggcnn_cmd_que
         self.euler_eef_to_color_opt = euler_eef_to_color_opt
@@ -102,10 +102,12 @@ class RobotGrasp(object):
         self.detect_xyz = detect_xyz
         self.gripper_z_mm = gripper_z_mm
         self.release_xyz = release_xyz
+        self.grasping_min_z = grasping_min_z
         # self.pose_averager = Averager(4, 3)
         self.pose_averager = MinPos(4, 3)
         self.is_ready = False
         self.alive = True
+        self.last_grasp_time = 0
         self.pos_t = threading.Thread(target=self.update_pos_thread, daemon=True)
         self.pos_t.start()
         self.thread = threading.Thread(target=self.run, daemon=True)
@@ -160,7 +162,7 @@ class RobotGrasp(object):
         y = self.CURR_POS[1]
         z = self.CURR_POS[2]
         # reset to start position if moved outside of boundary
-        if x < self.grasping_range[0] or x > self.grasping_range[1] or y < self.grasping_range[2] or y > self.grasping_range[3]:
+        if (time.monotonic() - self.last_grasp_time) > 5 or x < self.grasping_range[0] or x > self.grasping_range[1] or y < self.grasping_range[2] or y > self.grasping_range[3]:
             self.SERVO = False
             self.arm.set_state(4)
             self.arm.set_mode(0)
@@ -175,9 +177,11 @@ class RobotGrasp(object):
             time.sleep(0.5)
             self.GRASP_STATUS = 0
             self.SERVO = True
+            self.last_grasp_time = time.monotonic()
             return
 
-        if abs(self.CURR_POS[0] - self.GOAL_POS[0]) < 3 and abs(self.CURR_POS[1] - self.GOAL_POS[1]) < 3 and abs(self.CURR_POS[5] - self.GOAL_POS[5]) < 2:
+        # if abs(self.CURR_POS[0] - self.GOAL_POS[0]) < 5 and abs(self.CURR_POS[1] - self.GOAL_POS[1]) < 5 and abs(self.CURR_POS[5] - self.GOAL_POS[5]) < 5:
+        if abs(self.CURR_POS[0] - self.GOAL_POS[0]) < 5 and abs(self.CURR_POS[1] - self.GOAL_POS[1]) < 5:
             self.GRASP_STATUS = 1
 
         # Stop Conditions.
@@ -205,7 +209,7 @@ class RobotGrasp(object):
             self.arm.set_gripper_position(800, wait=True)
             # time.sleep(5)
 
-            self.arm.set_position(z=self.detect_xyz[2], speed=100, wait=True)
+            self.arm.set_position(z=self.detect_xyz[2] + 100, speed=100, wait=True)
             self.arm.set_position(x=self.detect_xyz[0], y=self.detect_xyz[1], z=self.detect_xyz[2], roll=180, pitch=0, yaw=0, speed=200, wait=True)
 
             self.pose_averager.reset()
@@ -215,6 +219,7 @@ class RobotGrasp(object):
 
             # input('Press Enter to Start')
             self.SERVO = True
+            self.last_grasp_time = time.monotonic()
 
     def get_eef_pose_m(self):
         _, eef_pos_mm = self.arm.get_position(is_radian=True)
@@ -259,6 +264,11 @@ class RobotGrasp(object):
         gp_base = [av[0], av[0], av[0], np.pi, 0, ang]
 
         GOAL_POS = [av[0] * 1000, av[1] * 1000, av[2] * 1000 + self.gripper_z_mm, 180, 0, math.degrees(ang + np.pi)]
+        if GOAL_POS[2] < self.gripper_z_mm + 10:
+            print('[IG]', GOAL_POS)
+            return
+        GOAL_POS[2] = max(GOAL_POS[2], self.grasping_min_z)
+        self.last_grasp_time = time.monotonic()
 
         # self.GOAL_POS = GOAL_POS
         # self.arm.set_position(*self.GOAL_POS, speed=30, acc=1000, wait=False)
