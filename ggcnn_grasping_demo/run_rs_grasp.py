@@ -58,7 +58,7 @@ def main():
 
     while grasp.is_alive():
         color_image, depth_image = camera.get_images()
-        cv2.imshow(WIN_NAME, color_image) # 显示彩色图像
+        # cv2.imshow(WIN_NAME, color_image) # 显示彩色图像
         if GGCNN_IN_THREAD:
             if not depth_img_que.empty():
                 depth_img_que.get()

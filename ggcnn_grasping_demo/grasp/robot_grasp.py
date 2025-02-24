@@ -108,20 +108,22 @@ class RobotGrasp(object):
         self.is_ready = False
         self.alive = True
         self.last_grasp_time = 0
-        self.pos_t = threading.Thread(target=self.update_pos_thread, daemon=True)
+        self.pos_t = threading.Thread(target=self.update_pos_loop, daemon=True)
         self.pos_t.start()
-        self.thread = threading.Thread(target=self.run, daemon=True)
-        self.thread.start()
+        self.ggcnn_t = threading.Thread(target=self.handle_ggcnn_loop, daemon=True)
+        self.ggcnn_t.start()
+        self.check_t = threading.Thread(target=self.check_loop, daemon=True)
+        self.check_t.start()
     
     def is_alive(self):
         return self.alive
     
-    def run(self):
+    def handle_ggcnn_loop(self):
         while self.arm.connected and self.alive:
             cmd = self.ggcnn_cmd_que.get()
             self.grasp(cmd)
 
-    def update_pos_thread(self):
+    def update_pos_loop(self):
         self.arm.motion_enable(True)
         self.arm.clean_error()
         self.arm.set_mode(0)
@@ -140,7 +142,6 @@ class RobotGrasp(object):
         self.arm.set_state(0)
         time.sleep(0.5)
 
-        self.arm.register_report_location_callback(self.robot_position_callback, report_joints=False)
         self.is_ready = True
 
         while self.arm.connected and self.arm.error_code == 0:
@@ -155,14 +156,27 @@ class RobotGrasp(object):
     
         self.arm.disconnect()
     
-    def robot_position_callback(self, msg):
+    def check_loop(self):
+        while self.arm.connected and self.arm.error_code == 0:
+            self._check()
+            time.sleep(0.01)
+
+    def _check(self):
         if not self.is_ready or not self.alive:
             return
         x = self.CURR_POS[0]
         y = self.CURR_POS[1]
         z = self.CURR_POS[2]
+        roll = self.CURR_POS[3]
+        pitch = self.CURR_POS[4]
+        yaw = self.CURR_POS[5]
         # reset to start position if moved outside of boundary
         if (time.monotonic() - self.last_grasp_time) > 5 or x < self.grasping_range[0] or x > self.grasping_range[1] or y < self.grasping_range[2] or y > self.grasping_range[3]:
+            if (time.monotonic() - self.last_grasp_time) > 5 \
+                and abs(x-self.detect_xyz[0]) < 2 and abs(y-self.detect_xyz[1]) < 2 and abs(z-self.detect_xyz[2]) < 2 \
+                and abs(abs(roll)-180) < 2 and abs(pitch) < 2 and abs(yaw) < 2:
+                self.last_grasp_time = time.monotonic()
+                return
             self.SERVO = False
             self.arm.set_state(4)
             self.arm.set_mode(0)
@@ -265,7 +279,7 @@ class RobotGrasp(object):
 
         GOAL_POS = [av[0] * 1000, av[1] * 1000, av[2] * 1000 + self.gripper_z_mm, 180, 0, math.degrees(ang + np.pi)]
         if GOAL_POS[2] < self.gripper_z_mm + 10:
-            print('[IG]', GOAL_POS)
+            # print('[IG]', GOAL_POS)
             return
         GOAL_POS[2] = max(GOAL_POS[2], self.grasping_min_z)
         self.last_grasp_time = time.monotonic()
