@@ -2,15 +2,20 @@
 
 ## Project Overview
 
-`ufactory_vision` is a vision-based grasping demo based on UFACTORY xArm 6 and Intel Realsense D435 camera. Users can quickly implement vision-based object detection and grasping with this project.
+`ufactory_vision` is a vision-based grasping demo based on UFACTORY 850 and xArm Serials with Intel Realsense D435 camera or Luxonis OAK-D-Pro-PoE depth camera. Users can quickly implement vision-based object detection and grasping with this project.
 
 [![Watch the video](https://img.youtube.com/vi/ijnuqsNcfUY/0.jpg)](https://www.youtube.com/watch?v=ijnuqsNcfUY)
 
 
 
+
+
 ## Hardware Requirements
 
-This project requires the following hardware:
+
+**UFACTORY Robot with Intel Realsense D435 Camera** 
+
+We used UFACTORY xArm 6 robot in the video, UFACTORY 850 and xArm 5, xArm 7 also works. Lite 6 does not support.
 
 - **Robot Arm**: [UFACTORY xArm 6](https://www.ufactory.cc/products/xarm)
 - **Gripper**: [UFACTORY xArm Gripper](https://www.ufactory.cc/product-page/ufactory-xarm-gripper/)
@@ -19,7 +24,24 @@ This project requires the following hardware:
   - Purchase Link: [UFACTORY Camera Stand](https://www.ufactory.cc/product-page/ufactory-xarm-camera-stand/)
   - 3D File Download: [Camera\_Stand\_1300.STEP](https://www.ufactory.cc/wp-content/uploads/2024/05/CameraStand_1300.zip) 
 
-## Supported Python Versions
+
+
+**UFACTORY Robot with Luxonis OAK-D-Pro-PoE Camera**
+
+We used a customized 850 with built-in gigabit net cable to shoot the video, [contact UFACTORY sales](https://www.ufactory.cc/contact-us/) if you need the customized gigabit version UFACTORY 850 robot. UFACTORY xArm 5, xArm 6 and xArm 7 also work, Lite 6 does not support.
+
+- **Robot Arm**: [UFACTORY 850](https://www.ufactory.cc/ufactory-850/)[Network Cable outside the Robot]
+- **Gripper**: [UFACTORY xArm Gripper](https://www.ufactory.cc/product-page/ufactory-xarm-gripper/)
+- **Camera**: [OAK-D Pro PoE](https://shop.luxonis.com/products/oak-d-pro-poe?variant=42469208883423)
+- **Camera Mount**: Provided by UFACTORY (3D printing or CNC with 3D file)
+  - 3D File Download: [Camera\_Stand\_850.STEP](Wait for upload) 
+
+
+
+
+## Sofeware 
+
+### Supported Python Versions
 
 Supported Python versions: 3.8-3.11 (Recommended: 3.11).
 
@@ -51,16 +73,31 @@ source ufactory_vision/bin/activate
 
 ### Install dependencies
 
+**Intel Realsense D435 Camera**
 ```bash
 cd ggcnn_grasping_demo
 pip install -r requirements_rs.txt
 ```
+**Luxonis OAK-D-Pro-PoE Camera**
+```bash
+cd ggcnn_grasping_demo
+pip install -r requirements_depthai.txt
+```
 
-## Run Example
+## Run Example 
+
+**Intel Realsense D435 Camera**
 
 ```bash
 python run_rs_grasp.py 192.168.1.xxx
 ```
+
+**Luxonis OAK-D-Pro-PoE Camera**
+
+```bash
+python run_depthai_grasp.py 192.168.1.xxx
+```
+
 
 Replace `192.168.1.xxx` with the IP address of the controller.
 
