@@ -39,8 +39,6 @@ We used a customized 850 with built-in gigabit net cable to shoot the video, [co
   - 3D File Download: [Camera\_Stand\_850.STEP](Wait for upload) 
 
 
-
-
 ## Sofeware 
 
 ### Supported Python Versions
@@ -111,3 +109,10 @@ Before running the example, ensure that collision detection is enabled. It is re
 
 This project is licensed under the **BSD 3-Clause License**. For details, please check the [LICENSE](LICENSE) file.
 
+## Reference
+
+We built the demo base on below opensource projects.
+
+[GGCNN](https://github.com/dougsm/ggcnn) 
+
+[ggcnn_kinova_grasping](https://github.com/dougsm/ggcnn_kinova_grasping)
