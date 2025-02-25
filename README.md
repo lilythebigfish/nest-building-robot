@@ -33,6 +33,8 @@ We used a customized 850 with built-in gigabit net cable to shoot the video, [co
 - **Robot Arm**: [UFACTORY 850](https://www.ufactory.cc/ufactory-850/)[Network Cable outside the Robot]
 - **Gripper**: [UFACTORY xArm Gripper](https://www.ufactory.cc/product-page/ufactory-xarm-gripper/)
 - **Camera**: [OAK-D Pro PoE](https://shop.luxonis.com/products/oak-d-pro-poe?variant=42469208883423)
+
+- **PoE Injector**: Tenda POE30G-AT, 1000M,30W(Other brand will also work)
 - **Camera Mount**: Provided by UFACTORY (3D printing or CNC with 3D file)
   - 3D File Download: [Camera\_Stand\_850.STEP](Wait for upload) 
 
