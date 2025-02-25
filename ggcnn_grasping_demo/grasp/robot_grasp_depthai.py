@@ -39,7 +39,6 @@ class Averager():
         self.curr = 0
         self.been_reset = True
 
-
 class MinPos():
     def __init__(self, inputs, time_steps):
         self.buffer = np.zeros((time_steps, inputs))
@@ -86,12 +85,55 @@ class MinPos():
         self.been_reset = True
 
 
+class GraspPos:
+    def __init__(self, threshold_x=20, threshold_y=20):
+        self.threshold_x = threshold_x
+        self.threshold_y = threshold_y
+        self.grasp_pos_a = [0] * 6
+        self.grasp_pos_b = [0] * 6
+        self.grasp_pos_c = [0] * 6
+        self.step = 0
+    
+    def set_step(self, step):
+        self.step = step
+    
+    def set_pos_a(self, pos):
+        for i in range(6):
+            self.grasp_pos_a[i] = pos[i]
+    
+    def set_pos_b(self, pos):
+        for i in range(6):
+            self.grasp_pos_b[i] = pos[i]
+    
+    def set_pos_c(self, pos):
+        for i in range(6):
+            self.grasp_pos_c[i] = pos[i]
+    
+    def update_pos_a_from_b(self):
+        for i in range(6):
+            self.grasp_pos_a[i] = self.grasp_pos_b[i]
+    
+    def update_pos_a_from_bc(self):
+        for i in range(6):
+            self.grasp_pos_a[i] = self.grasp_pos_c[i]
+        self.grasp_pos_a[2] = self.grasp_pos_b[2]
+
+    def check_ab(self):
+        if abs(self.grasp_pos_a[0] - self.grasp_pos_b[0]) > self.threshold_x or abs(self.grasp_pos_a[1] - self.grasp_pos_b[1]) > self.threshold_y:
+            return True
+        return False
+
+    def check_bc(self):
+        if abs(self.grasp_pos_b[0] - self.grasp_pos_c[0]) > self.threshold_x or abs(self.grasp_pos_b[1] - self.grasp_pos_c[1]) > self.threshold_y:
+            return True
+        return False
+    
+
 class RobotGrasp(object):    
     CURR_POS = [300, 0, 350, 180, 0, 0]
     GOAL_POS = [0, 0, 0, 0, 0, 0]
 
     SERVO = True
-    GRASP_STATUS = 0
 
     def __init__(self, robot_ip, ggcnn_cmd_que, euler_eef_to_color_opt, euler_color_to_depth_opt, grasping_range, detect_xyz, gripper_z_mm, release_xyz, grasping_min_z):
         self.arm = XArmAPI(robot_ip, report_type='real')
@@ -108,6 +150,7 @@ class RobotGrasp(object):
         self.is_ready = False
         self.alive = True
         self.last_grasp_time = 0
+        self.grasp_pos = GraspPos()
         self.pos_t = threading.Thread(target=self.update_pos_loop, daemon=True)
         self.pos_t.start()
         self.ggcnn_t = threading.Thread(target=self.handle_ggcnn_loop, daemon=True)
@@ -138,11 +181,12 @@ class RobotGrasp(object):
 
         self.SERVO = True
 
-        self.arm.set_mode(7)
+        # self.arm.set_mode(7)
         self.arm.set_state(0)
         time.sleep(0.5)
 
         self.is_ready = True
+        self.grasp_pos.set_step(1)
 
         while self.arm.connected and self.arm.error_code == 0:
             _, pos = self.arm.get_position()
@@ -160,7 +204,7 @@ class RobotGrasp(object):
         while self.arm.connected and self.arm.error_code == 0:
             self._check()
             time.sleep(0.01)
-
+    
     def _check(self):
         if not self.is_ready or not self.alive:
             return
@@ -171,51 +215,79 @@ class RobotGrasp(object):
         pitch = self.CURR_POS[4]
         yaw = self.CURR_POS[5]
         # reset to start position if moved outside of boundary
-        if (time.monotonic() - self.last_grasp_time) > 5 or x < self.grasping_range[0] or x > self.grasping_range[1] or y < self.grasping_range[2] or y > self.grasping_range[3]:
+        if (self.last_grasp_time != 0 and (time.monotonic() - self.last_grasp_time) > 5)  or x < self.grasping_range[0] or x > self.grasping_range[1] or y < self.grasping_range[2] or y > self.grasping_range[3]:
             if (time.monotonic() - self.last_grasp_time) > 5 \
                 and abs(x-self.detect_xyz[0]) < 2 and abs(y-self.detect_xyz[1]) < 2 and abs(z-self.detect_xyz[2]) < 2 \
                 and abs(abs(roll)-180) < 2 and abs(pitch) < 2 and abs(yaw) < 2:
                 self.last_grasp_time = time.monotonic()
                 return
+            print('*****', self.CURR_POS, self.last_grasp_time)
             self.SERVO = False
             self.arm.set_state(4)
-            self.arm.set_mode(0)
+            # self.arm.set_mode(0)
             self.arm.set_state(0)
             time.sleep(1)
-            self.arm.set_position(z=self.detect_xyz[2], speed=200, wait=True)
+            self.arm.set_position(z=self.detect_xyz[2], speed=300, wait=True)
             self.arm.set_position(x=self.detect_xyz[0], y=self.detect_xyz[1], z=self.detect_xyz[2], roll=180, pitch=0, yaw=0, speed=200, wait=True)
             time.sleep(0.25)
             self.pose_averager.reset()
-            self.arm.set_mode(7)
+            # self.arm.set_mode(7)
             self.arm.set_state(0)
-            time.sleep(0.5)
-            self.GRASP_STATUS = 0
+            time.sleep(1)
+
             self.SERVO = True
             self.last_grasp_time = time.monotonic()
+            self.grasp_pos.set_step(1)
             return
-
-        # if abs(self.CURR_POS[0] - self.GOAL_POS[0]) < 5 and abs(self.CURR_POS[1] - self.GOAL_POS[1]) < 5 and abs(self.CURR_POS[5] - self.GOAL_POS[5]) < 5:
-        if abs(self.CURR_POS[0] - self.GOAL_POS[0]) < 5 and abs(self.CURR_POS[1] - self.GOAL_POS[1]) < 5:
-            self.GRASP_STATUS = 1
+        
+        if self.grasp_pos.step > 2 and self.grasp_pos.step < 3:
+            pos = self.grasp_pos.grasp_pos_a
+            if abs(x-pos[0]+50) < 2 and abs(y-pos[1]) < 2:
+                time.sleep(1)
+                self.grasp_pos.set_step(3)
+        if self.grasp_pos.step > 5 and self.grasp_pos.step < 6:
+            pos = self.grasp_pos.grasp_pos_b
+            pos_z = max(pos[2], 300)
+            if abs(x-pos[0]+50) < 2 and abs(y-pos[1]) < 2 and abs(z-pos_z) < 2:
+                time.sleep(1)
+                self.grasp_pos.set_step(6)
+        if self.grasp_pos.step == 4:
+            print('===========step4=============')
+            print(self.grasp_pos.grasp_pos_a)
+            print(self.grasp_pos.grasp_pos_b)
+            
+            if self.grasp_pos.check_ab():
+                self.grasp_pos.update_pos_a_from_b()
+                self.grasp_pos.set_step(2)
+            else:
+                self.grasp_pos.set_step(5)
+        elif self.grasp_pos.step == 7:
+            print('===========step7==============')
+            print(self.grasp_pos.grasp_pos_b)
+            print(self.grasp_pos.grasp_pos_c)
+            if self.grasp_pos.check_bc():
+                self.grasp_pos.update_pos_a_from_bc()
+                self.grasp_pos.set_step(2)
+            else:
+                self.grasp_pos.set_step(8)
 
         # Stop Conditions.
-        if z < self.gripper_z_mm or z - 1 < self.GOAL_POS[2]:
+        if self.grasp_pos.step == 9 or z < self.gripper_z_mm or z - 1 < self.GOAL_POS[2]:
             if not self.SERVO:
                 return
             self.SERVO = False
-            self.GRASP_STATUS = 0
             print('>>>>', self.CURR_POS, self.GOAL_POS)
             self.arm.set_state(4)
-            self.arm.set_mode(0)
+            # self.arm.set_mode(0)
             self.arm.set_state(0)
             # arm.set_position(*self.GOAL_POS, wait=True)
             # Grip.
             time.sleep(0.1)
             self.arm.set_gripper_position(0, wait=True)
             time.sleep(0.5)
-            self.arm.set_position(z=self.detect_xyz[2] + 100, speed=200, wait=True)
-            self.arm.set_position(x=self.release_xyz[0], y=self.release_xyz[1], roll=180, pitch=0, yaw=0, speed=200, wait=True)
-            self.arm.set_position(z=self.release_xyz[2], speed=100, wait=True)
+            self.arm.set_position(z=self.detect_xyz[2] + 100, speed=300, wait=True)
+            self.arm.set_position(x=self.release_xyz[0], y=self.release_xyz[1], roll=180, pitch=0, yaw=0, speed=300, wait=True)
+            self.arm.set_position(z=self.release_xyz[2], speed=300, wait=True)
             # time.sleep(3)
             # input('Press Enter to Complete')
 
@@ -223,17 +295,17 @@ class RobotGrasp(object):
             self.arm.set_gripper_position(800, wait=True)
             # time.sleep(5)
 
-            self.arm.set_position(z=self.detect_xyz[2] + 100, speed=100, wait=True)
-            self.arm.set_position(x=self.detect_xyz[0], y=self.detect_xyz[1], z=self.detect_xyz[2], roll=180, pitch=0, yaw=0, speed=200, wait=True)
+            self.arm.set_position(z=self.detect_xyz[2] + 100, speed=300, wait=True)
+            self.arm.set_position(x=self.detect_xyz[0], y=self.detect_xyz[1], z=self.detect_xyz[2], roll=180, pitch=0, yaw=0, speed=300, wait=True)
 
             self.pose_averager.reset()
-            self.arm.set_mode(7)
+            # self.arm.set_mode(7)
             self.arm.set_state(0)
             time.sleep(2)
 
-            # input('Press Enter to Start')
             self.SERVO = True
             self.last_grasp_time = time.monotonic()
+            self.grasp_pos.set_step(1)
 
     def get_eef_pose_m(self):
         _, eef_pos_mm = self.arm.get_position(is_radian=True)
@@ -243,6 +315,10 @@ class RobotGrasp(object):
     def grasp(self, data):
         if not self.alive or not self.is_ready or not self.SERVO:
             return
+        if self.grasp_pos.step <= 0:
+            return
+        # if self.CURR_POS[2] < 250:
+        #     return
 
         d = list(data)
 
@@ -281,20 +357,43 @@ class RobotGrasp(object):
         if GOAL_POS[2] < self.gripper_z_mm + 10:
             # print('[IG]', GOAL_POS)
             return
-        GOAL_POS[2] = max(GOAL_POS[2], self.grasping_min_z)
+        GOAL_POS[2] = max(GOAL_POS[2], self.grasping_min_z)        
         self.last_grasp_time = time.monotonic()
 
-        # self.GOAL_POS = GOAL_POS
-        # self.arm.set_position(*self.GOAL_POS, speed=30, acc=1000, wait=False)
-
-        if self.GRASP_STATUS == 0:
-            self.GOAL_POS = GOAL_POS
-            self.arm.set_position(x=self.GOAL_POS[0], y=self.GOAL_POS[1], z=self.GOAL_POS[2] + 100,
-                                  roll=self.GOAL_POS[3], pitch=self.GOAL_POS[4], yaw=self.GOAL_POS[5], 
-                                  speed=100, acc=1000, wait=False)
-            # self.pose_averager.reset()
-            # self.pose_averager.update(av)
-
-        elif self.GRASP_STATUS == 1:
-            self.GOAL_POS = GOAL_POS
-            self.arm.set_position(*self.GOAL_POS, speed=50, acc=1000, wait=False)
+        if self.grasp_pos.step == 1:
+            self.grasp_pos.set_pos_a(GOAL_POS)
+            print('[1]', time.time(), GOAL_POS)
+            self.grasp_pos.set_step(2)
+        elif self.grasp_pos.step == 2:
+            pos = self.grasp_pos.grasp_pos_a
+            self.last_grasp_time = 0
+            self.arm.set_position(x=pos[0]-50, y=pos[1], z=self.CURR_POS[2],
+                                  roll=self.CURR_POS[3], pitch=self.CURR_POS[4], yaw=self.CURR_POS[5], 
+                                  speed=300, acc=1000, wait=False)
+            self.grasp_pos.set_step(2.1)
+            self.last_grasp_time = time.monotonic()
+        elif self.grasp_pos.step == 3:
+            self.grasp_pos.set_pos_b(GOAL_POS)
+            print('[3]', time.time(), GOAL_POS)
+            self.grasp_pos.set_step(4)
+        elif self.grasp_pos.step == 5:
+            pos = self.grasp_pos.grasp_pos_b
+            self.last_grasp_time = 0
+            self.arm.set_position(x=pos[0]-50, y=pos[1], z=max(pos[2], 300),
+                                  roll=self.CURR_POS[3], pitch=self.CURR_POS[4], yaw=self.CURR_POS[5], 
+                                  speed=200, acc=1000, wait=False)
+            self.grasp_pos.set_step(5.1)
+            self.last_grasp_time = time.monotonic()
+        elif self.grasp_pos.step == 6:
+            print('[6]', time.time(), GOAL_POS)
+            self.grasp_pos.set_pos_c(GOAL_POS)
+            self.grasp_pos.set_step(7)
+        elif self.grasp_pos.step == 8:
+            pos = self.grasp_pos.grasp_pos_c
+            self.last_grasp_time = 0
+            self.arm.set_position(x=pos[0], y=pos[1], z=self.CURR_POS[2],
+                                  roll=pos[3], pitch=pos[4], yaw=pos[5], 
+                                  speed=200, acc=1000, wait=True)
+            self.arm.set_position(z=pos[2], wait=True)
+            self.grasp_pos.set_step(9)
+            self.last_grasp_time = time.monotonic()
