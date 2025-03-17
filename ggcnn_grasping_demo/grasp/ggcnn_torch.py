@@ -181,7 +181,7 @@ class TorchGGCNN(object):
 
             # use disk replace circle
             # rr, cc = circle(self.prev_mp[0], self.prev_mp[1], 5)
-            rr, cc = disk(self.prev_mp, 5)
+            rr, cc = disk(self.prev_mp, 5, shape=(300, 300, 3))
             grasp_img[rr, cc, 0] = 0
             grasp_img[rr, cc, 1] = 255
             grasp_img[rr, cc, 2] = 0
