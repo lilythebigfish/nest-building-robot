@@ -93,7 +93,7 @@ class RobotGrasp(object):
     SERVO = True
     GRASP_STATUS = 0
 
-    def __init__(self, robot_ip, ggcnn_cmd_que, euler_eef_to_color_opt, euler_color_to_depth_opt, grasping_range, detect_xyz, gripper_z_mm, release_xyz, grasping_min_z):
+    def __init__(self, robot_ip, ggcnn_cmd_que, euler_eef_to_color_opt, euler_color_to_depth_opt, grasping_range, detect_xyz, gripper_z_mm, release_xyz, grasping_min_z, use_vacuum_gripper=False):
         self.arm = XArmAPI(robot_ip, report_type='real')
         self.ggcnn_cmd_que = ggcnn_cmd_que
         self.euler_eef_to_color_opt = euler_eef_to_color_opt
@@ -103,6 +103,7 @@ class RobotGrasp(object):
         self.gripper_z_mm = gripper_z_mm
         self.release_xyz = release_xyz
         self.grasping_min_z = grasping_min_z
+        self.use_vacuum_gripper = use_vacuum_gripper
         # self.pose_averager = Averager(4, 3)
         self.pose_averager = MinPos(4, 3)
         self.is_ready = False
@@ -132,8 +133,11 @@ class RobotGrasp(object):
         self.arm.set_position(z=self.detect_xyz[2], wait=True)
         self.arm.set_position(x=self.detect_xyz[0], y=self.detect_xyz[1], z=self.detect_xyz[2], roll=180, pitch=0, yaw=0, wait=True)
         time.sleep(0.5)
-        self.arm.set_gripper_enable(True)
-        self.arm.set_gripper_position(800)
+        if self.use_vacuum_gripper:
+            self.arm.set_vacuum_gripper(on=False)
+        else:
+            self.arm.set_gripper_enable(True)
+            self.arm.set_gripper_position(800)
         time.sleep(0.5)
 
         self.SERVO = True
@@ -211,7 +215,11 @@ class RobotGrasp(object):
             # arm.set_position(*self.GOAL_POS, wait=True)
             # Grip.
             time.sleep(0.1)
-            self.arm.set_gripper_position(0, wait=True)
+            if self.use_vacuum_gripper:
+                self.arm.set_vacuum_gripper(on=True)
+            else:
+                self.arm.set_gripper_position(0, wait=True)
+                # self.arm.close_lite6_gripper()
             time.sleep(0.5)
             self.arm.set_position(z=self.detect_xyz[2] + 100, speed=200, wait=True)
             self.arm.set_position(x=self.release_xyz[0], y=self.release_xyz[1], roll=180, pitch=0, yaw=0, speed=200, wait=True)
@@ -220,7 +228,11 @@ class RobotGrasp(object):
             # input('Press Enter to Complete')
 
             # Open Fingers
-            self.arm.set_gripper_position(800, wait=True)
+            if self.use_vacuum_gripper:
+                self.arm.set_vacuum_gripper(on=False)
+            else:
+                self.arm.set_gripper_position(800, wait=True)
+
             # time.sleep(5)
 
             self.arm.set_position(z=self.detect_xyz[2] + 100, speed=100, wait=True)
