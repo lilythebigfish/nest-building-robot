@@ -36,7 +36,7 @@ We used a customized 850 with built-in gigabit net cable to shoot the video, [co
 
 - **PoE Injector**: Tenda POE30G-AT, 1000M,30W(Other brand will also work)
 - **Camera Mount**: Provided by UFACTORY (3D printing or CNC with 3D file)
-  - 3D File Download: [OAK\_Camera\_Stand.STEP](Wait for upload) 
+  - 3D File Download: [OAK\_Camera\_Stand.STEP](https://www.ufactory.cc/wp-content/uploads/2025/05/oak_camera_stand.zip) 
 
 
 ## Sofeware 
