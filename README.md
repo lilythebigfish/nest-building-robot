@@ -22,7 +22,7 @@ We used UFACTORY xArm 6 robot in the video, UFACTORY 850 and xArm 5, xArm 7 also
 - **Camera**: [Intel RealSense D435](https://www.intelrealsense.com/depth-camera-d435/)
 - **Camera Mount**: Provided by UFACTORY (available for purchase or 3D printing)
   - Purchase Link: [UFACTORY Camera Stand](https://www.ufactory.cc/product-page/ufactory-xarm-camera-stand/)
-  - 3D File Download: [Camera\_Stand\_1300.STEP](https://www.ufactory.cc/wp-content/uploads/2024/05/CameraStand_1300.zip) 
+  - 3D File Download: [Realsense\_Camera\_Stand.STEP](https://www.ufactory.cc/wp-content/uploads/2024/05/CameraStand_1300.zip) 
 
 
 
@@ -36,7 +36,7 @@ We used a customized 850 with built-in gigabit net cable to shoot the video, [co
 
 - **PoE Injector**: Tenda POE30G-AT, 1000M,30W(Other brand will also work)
 - **Camera Mount**: Provided by UFACTORY (3D printing or CNC with 3D file)
-  - 3D File Download: [Camera\_Stand\_850.STEP](Wait for upload) 
+  - 3D File Download: [OAK\_Camera\_Stand.STEP](https://www.ufactory.cc/wp-content/uploads/2025/05/oak_camera_stand.zip) 
 
 
 ## Sofeware 
