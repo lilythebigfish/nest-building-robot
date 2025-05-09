@@ -1,12 +1,12 @@
 # ufactory\_vision
 
+[中文版说明](./README_ZH.md)
+
 ## Project Overview
 
 `ufactory_vision` is a vision-based grasping demo based on UFACTORY 850, Lite 6 and xArm Serials with Intel Realsense D435 camera or Luxonis OAK-D-Pro-PoE depth camera. Users can quickly implement vision-based object detection and grasping with this project.
 
 [![Watch the video](https://img.youtube.com/vi/ijnuqsNcfUY/0.jpg)](https://www.youtube.com/watch?v=ijnuqsNcfUY)
-
-
 
 
 
