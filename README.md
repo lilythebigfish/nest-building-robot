@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-`ufactory_vision` is a vision-based grasping demo based on UFACTORY 850 and xArm Serials with Intel Realsense D435 camera or Luxonis OAK-D-Pro-PoE depth camera. Users can quickly implement vision-based object detection and grasping with this project.
+`ufactory_vision` is a vision-based grasping demo based on UFACTORY 850, Lite 6 and xArm Serials with Intel Realsense D435 camera or Luxonis OAK-D-Pro-PoE depth camera. Users can quickly implement vision-based object detection and grasping with this project.
 
 [![Watch the video](https://img.youtube.com/vi/ijnuqsNcfUY/0.jpg)](https://www.youtube.com/watch?v=ijnuqsNcfUY)
 
@@ -15,7 +15,7 @@
 
 **UFACTORY Robot with Intel Realsense D435 Camera** 
 
-We used UFACTORY xArm 6 robot in the video, UFACTORY 850 and xArm 5, xArm 7 also works. Lite 6 does not support.
+We used UFACTORY xArm 6 robot in the video, UFACTORY 850, xArm 5, xArm 7 and Lite 6 also works.
 
 - **Robot Arm**: [UFACTORY xArm 6](https://www.ufactory.cc/products/xarm)
 - **Gripper**: [UFACTORY xArm Gripper](https://www.ufactory.cc/product-page/ufactory-xarm-gripper/)
@@ -28,7 +28,7 @@ We used UFACTORY xArm 6 robot in the video, UFACTORY 850 and xArm 5, xArm 7 also
 
 **UFACTORY Robot with Luxonis OAK-D-Pro-PoE Camera**
 
-We used a customized 850 with built-in gigabit net cable to shoot the video, [contact UFACTORY sales](https://www.ufactory.cc/contact-us/) if you need the customized gigabit version UFACTORY 850 robot. UFACTORY xArm 5, xArm 6 and xArm 7 also work, Lite 6 does not support.
+We used a customized 850 with built-in gigabit net cable to shoot the video, [contact UFACTORY sales](https://www.ufactory.cc/contact-us/) if you need the customized gigabit version UFACTORY 850 robot. UFACTORY xArm 5, xArm 6 and xArm 7 also work, Lite 6 does not support for the moment.
 
 - **Robot Arm**: [UFACTORY 850](https://www.ufactory.cc/ufactory-850/)[Network Cable outside the Robot]
 - **Gripper**: [UFACTORY xArm Gripper](https://www.ufactory.cc/product-page/ufactory-xarm-gripper/)
@@ -86,10 +86,16 @@ pip install -r requirements_depthai.txt
 
 ## Run Example 
 
-**Intel Realsense D435 Camera**
+**UFACTORY 850 or xArm 5/6/7 with Intel Realsense D435 Camera**
 
 ```bash
 python run_rs_grasp.py 192.168.1.xxx
+```
+
+**UFACTORY Lite 6 with Intel Realsense D435 Camera**
+
+```bash
+python run_rs_grasp_lite6.py 192.168.1.xxx
 ```
 
 **Luxonis OAK-D-Pro-PoE Camera**
@@ -102,8 +108,9 @@ python run_depthai_grasp.py 192.168.1.xxx
 Replace `192.168.1.xxx` with the IP address of the controller.
 
 ## Important Notes
-
-Before running the example, ensure that collision detection is enabled. It is recommended to set the collision sensitivity to 3 or higher.
+* Don't set TCP offset or coordinate offset, otherwise you’ll need to fine-tune the code..
+* Set TCP payload to avoid false collision detection.
+* Before running the example, ensure that collision detection is enabled. It is recommended to set the collision sensitivity to 3 or higher.
 
 ## License
 
