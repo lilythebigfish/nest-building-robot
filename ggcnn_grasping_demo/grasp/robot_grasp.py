@@ -290,6 +290,9 @@ class RobotGrasp(object):
         gp_base = [av[0], av[0], av[0], np.pi, 0, ang]
 
         GOAL_POS = [av[0] * 1000, av[1] * 1000, av[2] * 1000 + self.gripper_z_mm, 180, 0, math.degrees(ang + np.pi)]
+        if GOAL_POS[2] < self.gripper_z_mm + 10:
+            # print('[IG]', GOAL_POS)
+            return
         GOAL_POS[2] = max(GOAL_POS[2], self.grasping_min_z)
 
         if GOAL_POS[0] < self.grasping_range[0] or GOAL_POS[0] > self.grasping_range[1] or GOAL_POS[1] < self.grasping_range[2] or GOAL_POS[1] > self.grasping_range[3]:
