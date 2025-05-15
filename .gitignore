@@ -6,3 +6,9 @@ build/
 dist/
 *.egg-info/
 .vscode/
+*.old.*
+*.old
+*.patch
+proj
+rs_ggcnn_demo
+ggcnn_grasping_demo/tmp.txt
