@@ -27,7 +27,7 @@ EULER_COLOR_TO_DEPTH_OPT = [0.015, 0, 0, 0, 0, 0]
 GRASPING_RANGE = [180, 380, -200, 200] # [x_min, x_max, y_min, y_max]
 
 # initial detection position
-DETECT_XYZ = [300, 0, 300] # [x, y, z]
+DETECT_XYZ = [200, 0, 300] # [x, y, z]
 
 # release grasping pos
 RELEASE_XYZ = [200, 200, 200]
@@ -49,7 +49,6 @@ def main():
         exit(1)
     
     robot_ip = sys.argv[1]
-
 
     depth_img_que = Queue(1)
     ggcnn_cmd_que = Queue(1)

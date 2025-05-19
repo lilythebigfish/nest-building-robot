@@ -262,7 +262,7 @@ class RobotGrasp(object):
         # euler_base_to_eef = self.get_eef_pose_m()
 
         if d[2] > 0.2:  # Min effective range of the realsense.
-            gp = [d[0], d[1], d[2], 0, 0, -1*d[3]] # xyzrpy in meter
+            gp = [d[0], d[1], d[2], 0, 0, -1 * d[3]] # xyzrpy in meter
 
             # Calculate Pose of Grasp in Robot Base Link Frame
             # Average over a few predicted poses to help combat noise.
@@ -272,7 +272,7 @@ class RobotGrasp(object):
             if gp_base[5] < -np.pi:
                 gp_base[5] += np.pi
             elif gp_base[5] > 0:
-                gp_base[5] -= np.pi 
+                gp_base[5] -= np.pi
 
             # Only really care about rotation about z (e[2]).
             # if gp_base[0] * 1000 < self.grasping_range[0] or gp_base[0] * 1000 > self.grasping_range[1] \
@@ -282,7 +282,7 @@ class RobotGrasp(object):
 
         else:
             # gp_base = geometry_msgs.msg.Pose()
-            gp_base = [0]*6
+            gp_base = [0] * 6
             av = self.pose_averager.evaluate()
 
         # Average pose in base frame.

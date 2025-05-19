@@ -56,7 +56,6 @@ def main():
     
     robot_ip = sys.argv[1]
 
-
     depth_img_que = Queue(1)
     ggcnn_cmd_que = Queue(1)
     

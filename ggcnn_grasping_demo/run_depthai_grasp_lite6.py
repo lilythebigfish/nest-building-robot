@@ -28,7 +28,7 @@ EULER_COLOR_TO_DEPTH_OPT = [0.0375, 0, 0, 0, 0, 0]
 GRASPING_RANGE = [180, 380, -200, 200] # [x_min, x_max, y_min, y_max]
 
 # initial detection position
-DETECT_XYZ = [300, 0, 350] # [x, y, z]
+DETECT_XYZ = [200, 0, 350] # [x, y, z]
 
 # release grasping pos
 RELEASE_XYZ = [200, 200, 200]
