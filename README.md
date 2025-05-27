@@ -19,7 +19,7 @@
 
 ### Configuration with Intel Realsense D435 Camera
 
--   **Robot Arm**: [UFACTORY xArm 6](https://www.ufactory.cc/products/xarm) (Example)
+-   **Robot Arm**: [UFACTORY xArm 6](https://www.ufactory.cc/xarm-collaborative-robot/)
 -   **Gripper**: [UFACTORY xArm Gripper](https://www.ufactory.cc/product-page/ufactory-xarm-gripper/)
 -   **Camera**: [Intel RealSense D435](https://www.intelrealsense.com/depth-camera-d435/)
 -   **Camera Mount**: Provided by UFACTORY (available for purchase or 3D printing)

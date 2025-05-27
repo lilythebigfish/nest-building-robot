@@ -15,7 +15,7 @@
 
 
 ### 基于 Intel Realsense D435 相机的配置
-- **机械臂**: [UFACTORY xArm 6](https://www.ufactory.cc/products/xarm) (示例)
+- **机械臂**: [UFACTORY xArm 6](https://www.ufactory.cc/xarm-collaborative-robot/) 
 - **机械爪**: [UFACTORY xArm 机械爪](https://www.ufactory.cc/product-page/ufactory-xarm-gripper/)
 - **摄像头**: [Intel RealSense D435](https://www.intelrealsense.com/depth-camera-d435/)
 - **摄像头支架**: UFACTORY 提供 (可购买或 3D 打印)
