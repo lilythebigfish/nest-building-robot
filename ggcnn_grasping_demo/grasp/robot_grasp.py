@@ -116,6 +116,7 @@ class RobotGrasp(object):
         self.ggcnn_t.start()
         self.check_t = threading.Thread(target=self.check_loop, daemon=True)
         self.check_t.start()
+        self.object_count = 0
     
     def is_alive(self):
         return self.alive
@@ -216,9 +217,10 @@ class RobotGrasp(object):
 
             self.pick()
             time.sleep(0.5)
+            self.object_count += 1
 
             self.arm.set_position(z=self.lift_height, speed=200, wait=True)
-            self.arm.set_position(x=self.release_xyz[0], y=self.release_xyz[1], roll=180, pitch=0, yaw=0, speed=200, wait=True)
+            self.arm.set_position(x=self.release_xyz[0], y=(self.release_xyz[1] + (self.object_count*80)) , roll=180, pitch=0, yaw=0, speed=200, wait=True)
             self.arm.set_position(z=self.release_xyz[2], speed=100, wait=True)
 
             self.place()

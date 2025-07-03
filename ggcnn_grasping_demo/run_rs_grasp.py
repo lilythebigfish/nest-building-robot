@@ -12,7 +12,7 @@ WIN_NAME = 'RealSense'
 CAM_WIDTH = 640
 CAM_HEIGHT = 480
 
-MODEL_FILE = 'models/ggcnn_epoch_23_cornell'    # GGCNN
+MODEL_FILE = 'models/epoch_09_iou_93_87'    # GGCNN
 # MODEL_FILE = 'models/epoch_50_cornell'          # GGCNN2
 # use open-loop solution when robot height is over OPEN_LOOP_HEIGHT
 OPEN_LOOP_HEIGHT = 340 # mm
@@ -24,20 +24,20 @@ EULER_COLOR_TO_DEPTH_OPT = [0.015, 0, 0, 0, 0, 0]
 
 # The range of motion of the robot grasping
 # If it exceeds the range, it will return to the initial detection position.
-GRASPING_RANGE = [180, 600, -200, 200] # [x_min, x_max, y_min, y_max]
+GRASPING_RANGE = [80, 500, -450, 0] # [x_min, x_max, y_min, y_max]
 
 # initial detection position
-DETECT_XYZ = [300, 0, 400] # [x, y, z]
+DETECT_XYZ = [250, -300, 400] # [x, y, z]
 
 # release grasping pos
-RELEASE_XYZ = [400, 400, 270]
+RELEASE_XYZ = [400,-100, 200]
 
 # lift offset based on DETECT_XYZ[2] after grasping or release
-LIFT_OFFSET_Z = 100 # lift_height = DETECT_XYZ[2] + LIFT_OFFSET_Z
+LIFT_OFFSET_Z = 50 # lift_height = DETECT_XYZ[2] + LIFT_OFFSET_Z
 
 # The distance between the gripping point of the robot grasping and the end of the robot arm flange
 # The value needs to be fine-tuned according to the actual situation.
-GRIPPER_Z_MM = 150 # mm
+GRIPPER_Z_MM = 172 # mm
 
 # minimum z for grasping
 GRASPING_MIN_Z = 175 # mm

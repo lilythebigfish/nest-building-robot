@@ -4,6 +4,7 @@ import logging
 import torch.utils.data
 
 from models.common import post_process_output
+from models.ggcnn2 import GGCNN2
 from utils.dataset_processing import evaluation, grasp
 from utils.data import get_dataset
 
@@ -46,8 +47,10 @@ if __name__ == '__main__':
     args = parse_args()
 
     # Load Network
-    net = torch.load(args.network)
+    net = GGCNN2()
+    net.load_state_dict(torch.load(args.network))
     device = torch.device("cuda:0")
+    net = net.to(device)
 
     # Load Dataset
     logging.info('Loading {} Dataset...'.format(args.dataset.title()))

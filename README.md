@@ -1,12 +1,12 @@
 # ufactory_vision
 
-[中文版说明 (Chinese Version)](./README_ZH.md)
-
 ## Project Overview
 
 `ufactory_vision` is a vision-based grasping demo project based on UFACTORY robot arms. Users can quickly implement vision-based object detection and grasping with this project.
 
 [![Watch the video](https://img.youtube.com/vi/ijnuqsNcfUY/0.jpg)](https://www.youtube.com/watch?v=ijnuqsNcfUY)
+
+For this project, we modified the ufactory vision code to meet the specific requirements of our robot arm so it completes the task of constructing a bird nest.
 
 ## Hardware Requirements
 

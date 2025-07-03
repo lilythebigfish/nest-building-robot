@@ -12,3 +12,4 @@ dist/
 proj
 rs_ggcnn_demo
 ggcnn_grasping_demo/tmp.txt
+jacquard_data
