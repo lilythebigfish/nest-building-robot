@@ -218,9 +218,24 @@ class RobotGrasp(object):
             self.pick()
             time.sleep(0.5)
             self.object_count += 1
+            
+            angle_deg = 72 * (self.object_count % 5)
+            angle_rad = np.deg2rad(angle_deg)
+
+            radius = 50 
+            x_offset = radius * np.cos(angle_rad)
+            y_offset = radius * np.sin(angle_rad)
 
             self.arm.set_position(z=self.lift_height, speed=200, wait=True)
-            self.arm.set_position(x=(self.release_xyz[0] -  (self.object_count*30)), y=(self.release_xyz[1] - (self.object_count*50)) , roll=180, pitch=0, yaw=0, speed=200, wait=True)
+            self.arm.set_position(
+                x=self.release_xyz[0] - x_offset,
+                y=self.release_xyz[1] - y_offset,
+                roll=180,
+                pitch=0,
+                yaw=angle_deg,
+                speed=200,
+                wait=True
+            )
             self.arm.set_position(z=self.release_xyz[2], speed=100, wait=True)
 
             self.place()
