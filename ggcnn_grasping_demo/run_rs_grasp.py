@@ -27,10 +27,10 @@ EULER_COLOR_TO_DEPTH_OPT = [0.015, 0, 0, 0, 0, 0]
 GRASPING_RANGE = [80, 500, -450, 0] # [x_min, x_max, y_min, y_max]
 
 # initial detection position
-DETECT_XYZ = [250, -300, 400] # [x, y, z]
+DETECT_XYZ = [250, -300, 320] # [x, y, z]
 
 # release grasping pos
-RELEASE_XYZ = [400,-100, 200]
+RELEASE_XYZ = [400,-50, 200]
 
 # lift offset based on DETECT_XYZ[2] after grasping or release
 LIFT_OFFSET_Z = 50 # lift_height = DETECT_XYZ[2] + LIFT_OFFSET_Z

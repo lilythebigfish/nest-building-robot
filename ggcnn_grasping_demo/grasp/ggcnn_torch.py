@@ -151,30 +151,30 @@ class TorchGGCNN(object):
             # depth_crop = depth_crop.squeeze()
         
         with TimeIt('Control'):
-            # Calculate the best pose from the camera intrinsics.
-            maxes = None
+            
+             # Threshold to create mask
+            mask = points_out > 0.2  # Adjust threshold as needed
 
-            ALWAYS_MAX = False  # Use ALWAYS_MAX = True for the open-loop solution.
-
-            if robot_z > self.open_loop_height or ALWAYS_MAX:  # > 0.34 initialises the max tracking when the robot is reset.
-                # Track the global max.
-                max_pixel = np.array(np.unravel_index(np.argmax(points_out), points_out.shape))
-                # use np.int64 replace np.int
-                self.prev_mp = max_pixel.astype(np.int64)
+            # Connected component analysis
+            labeled_mask, num_features = ndimage.label(mask)
+            
+            if num_features == 0:
+                max_pixel = np.unravel_index(np.argmax(points_out), points_out.shape)
             else:
-                # Calculate a set of local maxes.  Choose the one that is closes to the previous one.
-                maxes = peak_local_max(points_out, min_distance=10, threshold_abs=0.1, num_peaks=3)
-                if maxes.shape[0] == 0:
-                    return points_out, None
-                max_pixel = maxes[np.argmin(np.linalg.norm(maxes - self.prev_mp, axis=1))]
+                # Measure object sizes
+                sizes = ndimage.sum(mask, labeled_mask, range(1, num_features + 1))
+                
+                # Choose the largest blob (or pick based on centroid proximity to center)
+                largest_label = (np.argmax(sizes) + 1)
+                isolated_mask = labeled_mask == largest_label
 
-                distance = np.linalg.norm(max_pixel - self.prev_mp)
-                if distance > 30:
-                    max_pixel = np.array(np.unravel_index(np.argmax(points_out), points_out.shape))
-                    self.prev_mp = max_pixel.astype(np.int64)
-                else:
-                    # use np.int64 replace np.int
-                    self.prev_mp = (max_pixel * 0.25 + self.prev_mp * 0.75).astype(np.int64)
+                # Now compute centroid of isolated object
+                center_of_mass = ndimage.center_of_mass(isolated_mask.astype(np.float32))
+                max_pixel = np.round(center_of_mass).astype(np.int64)
+
+            max_pixel = np.round(max_pixel).astype(np.int64)
+            
+            self.prev_mp = max_pixel
 
             ang = ang_out[max_pixel[0], max_pixel[1]]
             width = width_out[max_pixel[0], max_pixel[1]]
