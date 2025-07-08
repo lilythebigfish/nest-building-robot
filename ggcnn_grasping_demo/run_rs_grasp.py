@@ -30,7 +30,7 @@ GRASPING_RANGE = [80, 500, -450, 0] # [x_min, x_max, y_min, y_max]
 DETECT_XYZ = [250, -300, 320] # [x, y, z]
 
 # release grasping pos
-RELEASE_XYZ = [400,-50, 200]
+RELEASE_XYZ = [400,-50, 185]
 
 # lift offset based on DETECT_XYZ[2] after grasping or release
 LIFT_OFFSET_Z = 50 # lift_height = DETECT_XYZ[2] + LIFT_OFFSET_Z

@@ -117,6 +117,8 @@ class RobotGrasp(object):
         self.check_t = threading.Thread(target=self.check_loop, daemon=True)
         self.check_t.start()
         self.object_count = 0
+        self.radius = 40
+        self.angle_deg = 0
     
     def is_alive(self):
         return self.alive
@@ -217,26 +219,32 @@ class RobotGrasp(object):
 
             self.pick()
             time.sleep(0.5)
-            self.object_count += 1
             
-            angle_deg = 72 * (self.object_count % 5)
-            angle_rad = np.deg2rad(angle_deg)
 
-            radius = 50 
-            x_offset = radius * np.cos(angle_rad)
-            y_offset = radius * np.sin(angle_rad)
+            x_offset = self.radius * np.cos(np.deg2rad(self.angle_deg))
+            y_offset = self.radius * np.sin(np.deg2rad(self.angle_deg))
+            if self.object_count != 0:
+                if self.object_count % 5 == 0:
+                    self.angle_deg = 0
+                    self.release_xyz[2] += 10
+                    self.radius += 10
+                else:
+                    self.angle_deg += 72
+            
+            print('[GRASP] OBJECT COUNT: {}, ANGLE DEG: {}, RELEASE XYZ: {}'.format(self.object_count, self.angle_deg, self.release_xyz))
 
             self.arm.set_position(z=self.lift_height, speed=200, wait=True)
             self.arm.set_position(
                 x=self.release_xyz[0] - x_offset,
-                y=self.release_xyz[1] - y_offset,
+                y=self.release_xyz[1] + y_offset,
                 roll=180,
                 pitch=0,
-                yaw=angle_deg,
+                yaw=180-self.angle_deg,
                 speed=200,
                 wait=True
             )
             self.arm.set_position(z=self.release_xyz[2], speed=100, wait=True)
+            self.object_count += 1
 
             self.place()
 
