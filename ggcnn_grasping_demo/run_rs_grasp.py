@@ -24,13 +24,13 @@ EULER_COLOR_TO_DEPTH_OPT = [0.015, 0, 0, 0, 0, 0]
 
 # The range of motion of the robot grasping
 # If it exceeds the range, it will return to the initial detection position.
-GRASPING_RANGE = [80, 500, -450, 0] # [x_min, x_max, y_min, y_max]
+GRASPING_RANGE = [150, 550, -450, -200] # [x_min, x_max, y_min, y_max]
 
 # initial detection position
-DETECT_XYZ = [250, -300, 320] # [x, y, z]
+DETECT_XYZ = [250, -300, 280] # [x, y, z]
 
 # release grasping pos
-RELEASE_XYZ = [400,-50, 185]
+RELEASE_XYZ = [400,-50, 190]
 
 # lift offset based on DETECT_XYZ[2] after grasping or release
 LIFT_OFFSET_Z = 50 # lift_height = DETECT_XYZ[2] + LIFT_OFFSET_Z

@@ -117,7 +117,7 @@ class RobotGrasp(object):
         self.check_t = threading.Thread(target=self.check_loop, daemon=True)
         self.check_t.start()
         self.object_count = 0
-        self.radius = 40
+        self.radius = 20
         self.angle_deg = 0
     
     def is_alive(self):
@@ -190,7 +190,7 @@ class RobotGrasp(object):
             self.arm.set_state(0)
             time.sleep(1)
             self.arm.set_position(z=self.detect_xyz[2], speed=200, wait=True)
-            self.arm.set_position(x=self.detect_xyz[0], y=self.detect_xyz[1], z=self.detect_xyz[2], roll=180, pitch=0, yaw=0, speed=200, wait=True)
+            self.arm.set_position(x=self.detect_xyz[0]+50, y=self.detect_xyz[1], z=self.detect_xyz[2], roll=180, pitch=0, yaw=0, speed=200, wait=True)
             time.sleep(0.25)
             self.pose_averager.reset()
             self.arm.set_mode(7)
@@ -223,13 +223,15 @@ class RobotGrasp(object):
 
             x_offset = self.radius * np.cos(np.deg2rad(self.angle_deg))
             y_offset = self.radius * np.sin(np.deg2rad(self.angle_deg))
+            yaw_ang = 0
             if self.object_count != 0:
                 if self.object_count % 5 == 0:
                     self.angle_deg = 0
-                    self.release_xyz[2] += 10
-                    self.radius += 10
+                    self.release_xyz[2] += 15
+                    self.radius += 15
                 else:
                     self.angle_deg += 72
+                    yaw_ang = 180 - self.angle_deg
             
             print('[GRASP] OBJECT COUNT: {}, ANGLE DEG: {}, RELEASE XYZ: {}'.format(self.object_count, self.angle_deg, self.release_xyz))
 
@@ -239,7 +241,7 @@ class RobotGrasp(object):
                 y=self.release_xyz[1] + y_offset,
                 roll=180,
                 pitch=0,
-                yaw=180-self.angle_deg,
+                yaw=yaw_ang,
                 speed=200,
                 wait=True
             )
