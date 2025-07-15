@@ -125,6 +125,7 @@ class RobotGrasp(object):
     
     def handle_ggcnn_loop(self):
         while self.arm.connected and self.alive:
+            print("grasp called: alive", self.alive, "ready_check", self.ready_check, "ready_grasp", self.ready_grasp)
             cmd = self.ggcnn_cmd_que.get()
             self.grasp(cmd)
 
@@ -189,8 +190,8 @@ class RobotGrasp(object):
             self.arm.set_mode(0)
             self.arm.set_state(0)
             time.sleep(1)
-            self.arm.set_position(z=self.detect_xyz[2], speed=200, wait=True)
-            self.arm.set_position(x=self.detect_xyz[0]+50, y=self.detect_xyz[1], z=self.detect_xyz[2], roll=180, pitch=0, yaw=0, speed=200, wait=True)
+            self.arm.set_position(z=self.detect_xyz[2], speed=300, wait=True)
+            self.arm.set_position(x=self.detect_xyz[0], y=self.detect_xyz[1], z=self.detect_xyz[2], roll=180, pitch=0, yaw=0, speed=200, wait=True)
             time.sleep(0.25)
             self.pose_averager.reset()
             self.arm.set_mode(7)
@@ -199,6 +200,7 @@ class RobotGrasp(object):
             self.GRASP_STATUS = 0
             self.ready_grasp = True
             self.last_grasp_time = time.monotonic()
+
             return
 
         # if abs(self.CURR_POS[0] - self.GOAL_POS[0]) < 5 and abs(self.CURR_POS[1] - self.GOAL_POS[1]) < 5 and abs(self.CURR_POS[5] - self.GOAL_POS[5]) < 5:
@@ -218,7 +220,7 @@ class RobotGrasp(object):
             time.sleep(0.1)
 
             self.pick()
-            time.sleep(0.5)
+            time.sleep(0.1)
             
 
             x_offset = self.radius * np.cos(np.deg2rad(self.angle_deg))
@@ -227,7 +229,7 @@ class RobotGrasp(object):
             if self.object_count != 0:
                 if self.object_count % 5 == 0:
                     self.angle_deg = 0
-                    self.release_xyz[2] += 15
+                    self.release_xyz[2] += 8
                     self.radius += 15
                 else:
                     self.angle_deg += 72
@@ -235,23 +237,23 @@ class RobotGrasp(object):
             
             print('[GRASP] OBJECT COUNT: {}, ANGLE DEG: {}, RELEASE XYZ: {}'.format(self.object_count, self.angle_deg, self.release_xyz))
 
-            self.arm.set_position(z=self.lift_height, speed=200, wait=True)
+            self.arm.set_position(z=self.lift_height, speed=300, wait=True)
             self.arm.set_position(
                 x=self.release_xyz[0] - x_offset,
                 y=self.release_xyz[1] + y_offset,
                 roll=180,
                 pitch=0,
                 yaw=yaw_ang,
-                speed=200,
+                speed=300,
                 wait=True
             )
-            self.arm.set_position(z=self.release_xyz[2], speed=100, wait=True)
+            self.arm.set_position(z=self.release_xyz[2], speed=300, wait=True)
             self.object_count += 1
 
             self.place()
 
-            self.arm.set_position(z=self.lift_height, speed=100, wait=True)
-            self.arm.set_position(x=self.detect_xyz[0], y=self.detect_xyz[1], z=self.detect_xyz[2], roll=180, pitch=0, yaw=0, speed=200, wait=True)
+            self.arm.set_position(z=self.lift_height, speed=300, wait=True)
+            self.arm.set_position(x=self.detect_xyz[0], y=self.detect_xyz[1], z=self.detect_xyz[2], roll=180, pitch=0, yaw=0, speed=300, wait=True)
 
             self.pose_averager.reset()
             self.arm.set_mode(7)
@@ -271,7 +273,7 @@ class RobotGrasp(object):
         if self.use_vacuum_gripper:
             self.arm.set_vacuum_gripper(on=False)
         else:
-            self.arm.set_gripper_position(800, wait=True)
+            self.arm.set_gripper_position(200, wait=True)
 
     def get_eef_pose_m(self):
         _, eef_pos_mm = self.arm.get_position(is_radian=True)
@@ -279,6 +281,7 @@ class RobotGrasp(object):
         return eef_pos_m
 
     def grasp(self, data):
+        # print("grasp called: alive", self.alive, "ready_check", self.ready_check, "ready_grasp", self.ready_grasp)
         if not self.alive or not self.ready_check or not self.ready_grasp:
             return
 
@@ -288,7 +291,7 @@ class RobotGrasp(object):
         # PBVS Method.
         # euler_base_to_eef = self.get_eef_pose_m()
 
-        if d[2] > 0.2:  # Min effective range of the realsense.
+        if d[2] > 0.17:  # Min effective range of the realsense.
             gp = [d[0], d[1], d[2], 0, 0, -1 * d[3]] # xyzrpy in meter
 
             # Calculate Pose of Grasp in Robot Base Link Frame
@@ -317,8 +320,8 @@ class RobotGrasp(object):
         gp_base = [av[0], av[0], av[0], np.pi, 0, ang]
 
         GOAL_POS = [av[0] * 1000, av[1] * 1000, av[2] * 1000 + self.gripper_z_mm, 180, 0, math.degrees(ang + np.pi)]
-        if GOAL_POS[2] < self.gripper_z_mm + 10:
-            # print('[IG]', GOAL_POS)
+        if GOAL_POS[2] < self.gripper_z_mm :
+            print('[IG]', GOAL_POS)
             return
         GOAL_POS[2] = max(GOAL_POS[2], self.grasping_min_z)
 

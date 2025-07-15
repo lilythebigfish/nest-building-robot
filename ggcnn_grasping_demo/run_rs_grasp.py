@@ -27,20 +27,20 @@ EULER_COLOR_TO_DEPTH_OPT = [0.015, 0, 0, 0, 0, 0]
 GRASPING_RANGE = [150, 550, -450, -200] # [x_min, x_max, y_min, y_max]
 
 # initial detection position
-DETECT_XYZ = [250, -300, 280] # [x, y, z]
+DETECT_XYZ = [350, -375, 300] # [x, y, z]
 
 # release grasping pos
-RELEASE_XYZ = [400,-50, 190]
+RELEASE_XYZ = [400, 0, 200]
 
 # lift offset based on DETECT_XYZ[2] after grasping or release
 LIFT_OFFSET_Z = 50 # lift_height = DETECT_XYZ[2] + LIFT_OFFSET_Z
 
 # The distance between the gripping point of the robot grasping and the end of the robot arm flange
 # The value needs to be fine-tuned according to the actual situation.
-GRIPPER_Z_MM = 172 # mm
+GRIPPER_Z_MM = 171 # mm
 
 # minimum z for grasping
-GRASPING_MIN_Z = 175 # mm
+GRASPING_MIN_Z = 185 # mm
 
 # DEPTH_CAM_K = np.array([
 #     [fx, 0, cx],

@@ -189,8 +189,10 @@ class TorchGGCNN(object):
             x = (max_pixel[1] - cx) / (fx) * point_depth
             y = (max_pixel[0] - cy) / (fy) * point_depth
             z = point_depth
-            # print("converted xyz in cam coordinate: [%lf, %lf, %lf]"%(x,y,z))
+            #print("converted xyz in cam coordinate: [%lf, %lf, %lf]"%(x,y,z))
+            print('number of features found: %d' % num_features)
             if np.isnan(z):
+                print("\n Grasping failed, point depth is NaN")
                 return points_out, None
 
         with TimeIt('Draw'):
@@ -207,5 +209,5 @@ class TorchGGCNN(object):
             grasp_img[rr, cc, 0] = 0
             grasp_img[rr, cc, 1] = 255
             grasp_img[rr, cc, 2] = 0
-        
+        print("Grasp candidate: x={:.2f}, y={:.2f}, z={:.2f}, ang={:.2f}, width={:.2f}, depth_center={:.2f}".format(x, y, z, ang, width, depth_center))
         return grasp_img, [x, y, z, ang, width, depth_center]
